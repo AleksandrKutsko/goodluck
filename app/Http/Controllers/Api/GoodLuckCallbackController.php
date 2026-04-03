@@ -9,6 +9,7 @@ use App\Models\TransactionStatus;
 use App\Models\TransactionSubStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class GoodLuckCallbackController extends Controller
 {
@@ -22,29 +23,29 @@ class GoodLuckCallbackController extends Controller
     {
         $data = (array) $request->json()->all();
 
-        $externalId = $data['external_id'];
+        $validate = Validator::make($data, [
+            'external_id' => ['required', 'string'],
+            'status' => ['required', 'string', 'exists:transaction_statuses,code'],
+            'sub_status' => ['required', 'string', 'exists:transaction_sub_statuses,code']
+        ]);
 
-        $transaction = Transaction::query()->where('external_id', $externalId)->first();
+        if(!$validate->fails()){
+            $externalId = $validate['external_id'];
 
-        if($transaction){
-            TransactionLog::query()->create([
-                'transaction_id' => $transaction->id,
-                'request' => [
-                    'type' => 'callback',
-                    'data' => $data
-                ],
-            ]);
+            $transaction = Transaction::query()->where('external_id', $externalId)->first();
 
-            $status = TransactionStatus::query()->where('code', $data['status'])->first();
-            if($status){
-                $transaction->transaction_status_code = $data['status'];
-            }
-            $subStatus = TransactionSubStatus::query()->where('code', $data['sub_status'])->first();
-            if($subStatus){
-                $transaction->transaction_sub_status_code = $data['sub_status'];
-            }
+            if($transaction){
+                TransactionLog::query()->create([
+                    'transaction_id' => $transaction->id,
+                    'request' => [
+                        'type' => 'callback',
+                        'data' => $data
+                    ],
+                ]);
 
-            if($status || $subStatus){
+                $transaction->transaction_status_code = $validate['status'];
+                $transaction->transaction_sub_status_code = $validate['sub_status'];
+
                 $transaction->save();
             }
         }
