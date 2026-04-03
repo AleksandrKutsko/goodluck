@@ -40,7 +40,7 @@ class CreateTransaction
     {
         return $this->create(
             paymentCode: $paymentCode,
-            typeName: 'Оплата',
+            typeCode: 'order',
             externalId: $externalId,
             amount: $amount,
             bankCode: $bankCode,
@@ -68,7 +68,7 @@ class CreateTransaction
     {
         return $this->create(
             paymentCode: $paymentCode,
-            typeName: 'Выплата',
+            typeCode: 'payout',
             externalId: $externalId,
             amount: $amount,
             bankCode: $bankCode,
@@ -90,7 +90,7 @@ class CreateTransaction
      */
     private function create(
         string $paymentCode,
-        string $typeName,
+        string $typeCode,
         string $externalId,
         float|int|string $amount,
         string $bankCode,
@@ -98,7 +98,7 @@ class CreateTransaction
         callable $create,
     ): Transaction
     {
-        $typeId = TransactionType::query()->where('name', $typeName)->value('id');
+        $typeId = TransactionType::query()->where('code', $typeCode)->value('id');
         $paymentSystemId = PaymentSystem::query()->where('code', $paymentCode)->value('id');
 
         $transaction = Transaction::query()->create([
@@ -111,10 +111,10 @@ class CreateTransaction
 
         TransactionLog::query()->create([
             'transaction_id' => $transaction->id,
-            'request' => json_encode([
+            'request' => [
                 'type' => 'request',
                 'data' => $request
-            ]),
+            ],
         ]);
 
         try {
@@ -131,16 +131,16 @@ class CreateTransaction
             TransactionLog::query()->create([
                 'transaction_id' => $transaction->id,
                 'http_status' => 200,
-                'response' => json_encode($result)
+                'response' => $result
             ]);
         }catch (GoodLuckApiException $e){
             TransactionLog::query()->create([
                 'transaction_id' => $transaction->id,
                 'http_status' => $e->getCode(),
-                'request' => json_encode($request),
-                'response' => json_encode([
+                'request' => $request,
+                'response' => [
                     'message' => $e->getMessage(),
-                ])
+                ]
             ]);
         }
 

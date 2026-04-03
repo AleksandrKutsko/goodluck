@@ -2,8 +2,6 @@
 
 namespace App\Contracts;
 
-use http\Params;
-
 interface PaymentGatewayInterface
 {
     public function createOrder(array $data, int $maxWait = null): array;

@@ -34,9 +34,7 @@ class GoodLuckApiClient implements PaymentGatewayInterface
     {
         $headers = [];
         if(!empty($maxWait)){
-            $headers[] = [
-                'X-Max-Wait-Ms' => $maxWait
-            ];
+            $headers['X-Max-Wait-Ms'] = $maxWait;
         }
 
         return $this->request('/api/merchant/order', 'POST', $data, $headers);
@@ -119,7 +117,7 @@ class GoodLuckApiClient implements PaymentGatewayInterface
             );
         }
 
-        return $result->body['data'] ?? null;
+        return $result->body['data'] ?? [];
     }
 
     /**

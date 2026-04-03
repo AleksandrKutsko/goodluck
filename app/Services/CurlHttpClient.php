@@ -70,7 +70,7 @@ class CurlHttpClient
         $info = curl_getinfo($curl);
         $httpCode = intval($info['http_code'] ?? 0);
 
-        if(!$result){
+        if($result === false){
             return new CurlResult(
                 $httpCode,
                 [],

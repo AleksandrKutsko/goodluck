@@ -23,8 +23,8 @@ class TransactionController extends Controller
     {
         $query = Transaction::query()->with(['paymentSystem', 'transactionStatus', 'transactionSubStatus', 'transactionType', 'bank']);
 
-        if($request->filled('payment_system_code')){
-            $query->where('payment_system_code', $request->string('payment_system_code'));
+        if($request->filled('payment_system_id')){
+            $query->where('payment_system_id', $request->string('payment_system_id'));
         }
 
         if($request->filled('external_id')){
@@ -79,10 +79,10 @@ class TransactionController extends Controller
     public function createOrder(Request $request, CreateTransaction $creator): JsonResponse
     {
         $validated = $request->validate([
-            'payment_code' => ['required', 'string'],
+            'payment_code' => ['required', 'string', 'exists:payment_systems,code'],
             'external_id' => ['required', 'string'],
-            'amount' => ['required'],
-            'bank_code' => ['required', 'string'],
+            'amount' => ['required', 'numeric'],
+            'bank_code' => ['required', 'string', 'exists:banks,code'],
             'data' => ['required', 'array'],
         ]);
 
@@ -142,10 +142,10 @@ class TransactionController extends Controller
     public function createPayout(Request $request, CreateTransaction $creator): JsonResponse
     {
         $validated = $request->validate([
-            'payment_code' => ['required', 'string'],
+            'payment_code' => ['required', 'string', 'exists:payment_systems,code'],
             'external_id' => ['required', 'string'],
-            'amount' => ['required'],
-            'bank_code' => ['required', 'string'],
+            'amount' => ['required', 'numeric'],
+            'bank_code' => ['required', 'string', 'exists:banks,code'],
             'data' => ['required', 'array'],
         ]);
 

@@ -20,25 +20,23 @@ class GoodLuckCallbackController extends Controller
     {
         $data = (array) $request->json()->all();
 
-        $uuid = $data['order_id'] ?? ($data['uuid'] ?? null);
+        $externalId = $data['external_id'];
 
-        if(!empty(!$uuid)){
-            $transaction = Transaction::query()->where('uuid', $uuid)->first();
+        $transaction = Transaction::query()->where('external_id', $externalId)->first();
 
-            if($transaction){
-                TransactionLog::query()->create([
-                    'transaction_id' => $transaction->id,
-                    'request' => json_encode([
-                        'type' => 'callback',
-                        'data' => $data
-                    ]),
-                ]);
+        if($transaction){
+            TransactionLog::query()->create([
+                'transaction_id' => $transaction->id,
+                'request' => [
+                    'type' => 'callback',
+                    'data' => $data
+                ],
+            ]);
 
-                $transaction->transaction_status_code = $data['status'];
-                $transaction->transaction_sub_status_code = $data['sub_status'];
+            $transaction->transaction_status_code = $data['status'];
+            $transaction->transaction_sub_status_code = $data['sub_status'];
 
-                $transaction->save();
-            }
+            $transaction->save();
         }
 
         return response()->json(['success' => true]);

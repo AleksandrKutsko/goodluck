@@ -13,13 +13,22 @@ class TransactionTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['Оплата', 'Выплата'] as $name) {
-            if (DB::table('transaction_types')->where('name', $name)->exists()) {
-                continue;
-            }
-            DB::table('transaction_types')->insert([
-                'name' => $name
-            ]);
+        $now = now();
+
+        $rows = [
+            ['code' => 'order', 'name' => 'Оплата'],
+            ['code' => 'payout', 'name' => 'Выплата'],
+        ];
+
+        foreach ($rows as &$row) {
+            $row['created_at'] = $now;
+            $row['updated_at'] = $now;
         }
+
+        DB::table('transaction_types')->upsert(
+            $rows,
+            ['code'],
+            ['name', 'updated_at']
+        );
     }
 }
