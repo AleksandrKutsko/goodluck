@@ -28,13 +28,12 @@ class VerifyGoodLuckCallback
         $paymentSystemCode = config('goodluck.provider_code', 'goodluck');
         $paymentSystem = PaymentSystem::query()->where('code', $paymentSystemCode)->first();
         $paymentSystemKeys = $paymentSystem->keys;
+        $paymentWebhookSecret = $paymentSystemKeys['webhook_secret'] ?? config('goodluck.webhook_secret');
 
-        if(!empty($paymentSystemKeys['webhook_secret'])){
-            $headerSecret = $request->header('X-Webhook-Secret');
+        $headerSecret = $request->header('X-Webhook-Secret');
 
-            if(!is_string($headerSecret) || !hash_equals($headerSecret, $paymentSystemKeys['webhook_secret'])){
-                return response()->json(['message' => 'Unauthorized'], 401);
-            }
+        if(!is_string($headerSecret) || !hash_equals($headerSecret, $paymentWebhookSecret)){
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         return $next($request);

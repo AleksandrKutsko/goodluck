@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
+use App\Models\TransactionStatus;
+use App\Models\TransactionSubStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -33,10 +35,18 @@ class GoodLuckCallbackController extends Controller
                 ],
             ]);
 
-            $transaction->transaction_status_code = $data['status'];
-            $transaction->transaction_sub_status_code = $data['sub_status'];
+            $status = TransactionStatus::query()->where('code', $data['status'])->first();
+            if($status){
+                $transaction->transaction_status_code = $data['status'];
+            }
+            $subStatus = TransactionSubStatus::query()->where('code', $data['sub_status'])->first();
+            if($subStatus){
+                $transaction->transaction_sub_status_code = $data['sub_status'];
+            }
 
-            $transaction->save();
+            if($status || $subStatus){
+                $transaction->save();
+            }
         }
 
         return response()->json(['success' => true]);

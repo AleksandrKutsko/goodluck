@@ -5,4 +5,5 @@ return [
     'provider_code' => env('GOODLUCK_PROVIDER_CODE', 'goodluck'),
     'connect_timeout_seconds' => (int) env('GOODLUCK_CONNECT_TIMEOUT_SECONDS', 10),
     'timeout_seconds' => (int) env('GOODLUCK_TIMEOUT_SECONDS', 60),
+    'webhook_secret' => env('GOODLUCK_WEBHOOK_SECRET')
 ];
