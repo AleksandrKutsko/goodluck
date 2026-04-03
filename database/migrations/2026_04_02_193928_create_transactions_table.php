@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('external_id')->unique();
             $table->string('uuid')->unique()->nullable();
 
-            $table->foreignId('payment_system_id');
+            $table->foreignId('payment_system_id')->constrained();
             $table->foreignId('transaction_type_id')->constrained()->restrictOnDelete();
             $table->string('transaction_status_code')->default('pending');
             $table->foreign('transaction_status_code')->references('code')->on('transaction_statuses')->restrictOnDelete();

@@ -28,9 +28,12 @@ Route::prefix('transactions')->group(function (){
     Route::get('/', [TransactionController::class, 'index']);
     Route::get('/{transaction}', [TransactionController::class, 'show']);
     Route::post('/order', [TransactionController::class, 'createOrder']);
+    Route::get('/order', [TransactionController::class, 'getOrder']);
     Route::post('/payout', [TransactionController::class, 'createPayout']);
+    Route::get('/payout', [TransactionController::class, 'getPayout']);
+    Route::get('/balance', [TransactionController::class, 'getBalance']);
 });
 
 Route::prefix('webhooks')->group(function(){
-    Route::post('/goodluck', [GoodLuckCallbackController::class, 'verify'])->middleware(VerifyGoodLuckCallback::class);
+    Route::post('/goodluck', [GoodLuckCallbackController::class, 'verify'])->middleware('verify.goodluck');
 });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\CreateTransaction;
+use App\Contracts\PaymentGatewayInterface;
 use App\Exceptions\GoodLuckApiException;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
@@ -89,7 +90,7 @@ class TransactionController extends Controller
             $transaction = $creator->createOrder(
                 paymentCode: $validated['payment_code'],
                 externalId: $validated['external_id'],
-                amount: $validated['bank_code'],
+                amount: $validated['amount'],
                 bankCode: $validated['bank_code'],
                 data: $validated['data']
             );
@@ -104,6 +105,32 @@ class TransactionController extends Controller
             'success' => true,
             'data' => $transaction
         ], 201);
+    }
+
+    /**
+     * @param Request $request
+     * @param PaymentGatewayInterface $payment
+     * @return JsonResponse
+     */
+    public function getOrder(Request $request, PaymentGatewayInterface $payment): JsonResponse
+    {
+        $validated = $request->validate([
+            'order_id' => ['required', 'string'],
+        ]);
+
+        try {
+            $transaction = $payment->getOrder($validated['order_id']);
+        }catch (GoodLuckApiException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $transaction
+        ]);
     }
 
     /**
@@ -126,7 +153,7 @@ class TransactionController extends Controller
             $transaction = $creator->createPayout(
                 paymentCode: $validated['payment_code'],
                 externalId: $validated['external_id'],
-                amount: $validated['bank_code'],
+                amount: $validated['amount'],
                 bankCode: $validated['bank_code'],
                 data: $validated['data']
             );
@@ -141,5 +168,53 @@ class TransactionController extends Controller
             'success' => true,
             'data' => $transaction
         ], 201);
+    }
+
+    /**
+     * @param Request $request
+     * @param PaymentGatewayInterface $payment
+     * @return JsonResponse
+     */
+    public function getPayout(Request $request, PaymentGatewayInterface $payment): JsonResponse
+    {
+        $validated = $request->validate([
+            'payout_id' => ['required', 'string'],
+        ]);
+
+        try {
+            $transaction = $payment->getPayout($validated['payout_id']);
+        }catch (GoodLuckApiException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $transaction
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param PaymentGatewayInterface $payment
+     * @return JsonResponse
+     */
+    public function getBalance(Request $request, PaymentGatewayInterface $payment): JsonResponse
+    {
+        try {
+            $balance = $payment->getBalance();
+        }catch (GoodLuckApiException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $balance
+        ]);
     }
 }

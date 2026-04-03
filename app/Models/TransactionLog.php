@@ -14,6 +14,11 @@ class TransactionLog extends Model
         'response',
     ];
 
+    protected $casts = [
+        'request' => 'json',
+        'response' => 'json',
+    ];
+
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);

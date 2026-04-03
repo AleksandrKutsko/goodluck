@@ -18,6 +18,10 @@ class PaymentSystem extends Model
         'keys',
     ];
 
+    protected $casts = [
+        'keys' => 'json',
+    ];
+
     public function scopeActive($query): void
     {
         $query->where('active', true);

@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(\App\Http\Middleware\VerifyGoodLuckCallback::class);
+        $middleware->alias([
+            'verify.goodluck' => \App\Http\Middleware\VerifyGoodLuckCallback::class
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

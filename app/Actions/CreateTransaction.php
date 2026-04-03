@@ -45,7 +45,7 @@ class CreateTransaction
             amount: $amount,
             bankCode: $bankCode,
             request: $data,
-            create: fn () => $this->gateway->createPayout($data)
+            create: fn () => $this->gateway->createOrder($data)
         );
     }
 
